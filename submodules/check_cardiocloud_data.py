@@ -7,7 +7,7 @@
 
 import subprocess
 
-def check_cardiocloud_data(cc_folder, capture_output=True, shell=True):
+def check_cardiocloud_data(cc_folder, storage_folder, capture_output=True, shell=True):
     """
     Runs a bash command and returns the output, error, and exit code.
 
@@ -33,6 +33,31 @@ def check_cardiocloud_data(cc_folder, capture_output=True, shell=True):
             "stderr": result.stderr.strip(),
             "exit_code": result.returncode
         }
+    except Exception as e:
+        return {
+            "stdout": "",
+            "stderr": str(e),
+            "exit_code": -1
+        }
+
+def download_cardiocloud_data(cc_folder, storage_folder, capture_output=True, shell=True):
+    # function to download the cardiocloud data
+    cmd_copy = "rclone copy crc1550:" + cc_folder + "/ " + storage_folder
+    print(cmd_copy)
+    print("Copying files from CardioCloud into: ", storage_folder)
+    try:
+        result_copy = subprocess.run(
+                cmd_copy,
+                shell=shell,
+                capture_output=capture_output,
+                text=True
+                )
+        return {
+            "stdout": result_copy.stdout.strip(),
+            "stderr": result_copy.stderr.strip(),
+            "exit_code": result_copy.returncode
+        }
+    
     except Exception as e:
         return {
             "stdout": "",
