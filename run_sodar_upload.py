@@ -13,6 +13,7 @@ import os.path
 import sys
 
 from submodules import check_cubitk_installation as check
+from submodules import check_cardiocloud_data as rclone
 
 
 ########################## Arguments ##########################
@@ -63,10 +64,10 @@ print(args)
 # Example usage
 if args.verbose:
     print("Verbose mode enabled")
-print(f"Running SODAR project upload! Please check the following parameters:")
-print(f"Input folder: {args.input_folder}")
-print(f"Output project UUID: {args.uuid}")
-print(f"Temporary folder where files from CardioCloud will be stored: {args.temp}")
+print(f"#Running SODAR project upload! Please check the following parameters:")
+print(f"#Input folder: {args.input_folder}")
+print(f"#Output project UUID: {args.uuid}")
+print(f"#Temporary folder where files from CardioCloud will be stored: {args.temp}")
 
 
 ########################## cubi-tk installation check ##########################
@@ -75,11 +76,33 @@ cmd = "cubi-tk sodar -h"
 response_check = check.run_bash_command(cmd)
 
 if response_check["exit_code"] == 0:
-    print("cubi-tk installation exists and running successfully!")
+    print("#cubi-tk installation exists and running successfully!")
     #print("Output:\n", response_check["stdout"])
 else:
     print("Looks like there are some problem with installations of cubi-tk. Please check!")
     print("Errors:\n", response_check["stderr"])
     print("Exit Code:", response_check["exit_code"])
+
+########################## CardioCloud folder download  ##########################
+# check if the folder on CardioCloud exists and if so, rclone it to a temp directory
+response_rclone = rclone.check_cardiocloud_data(args.input_folder, args.temp) 
+if response_rclone['exit_code'] == 0:
+    print("#Input data folder exists on CardioCloud. Proceeding to download.")
+    print("Data details\n", response_rclone['stdout'])
+    response_rclone_copy = rclone.download_cardiocloud_data(args.input_folder, args.temp)
+    if response_rclone_copy['exit_code'] == 0:
+        print("CardioCloud data folder downloaded into", args.temp)
+    else:
+        print("Errors downloading data from CardioCloud", response_rclone_copy['stderr'])
+
+else:
+    print("*CardioCloud folder not found. Please check and re-run!")
+    print(response_rclone['stderr'])
+    sys.exit("Exiting because input folder not found on CardioCloud")
+#print(response_rclone)
+#print(response_rclone_copy)
+
+
+
 
 
