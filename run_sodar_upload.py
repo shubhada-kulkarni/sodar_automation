@@ -14,7 +14,7 @@ import sys
 
 from submodules import check_cubitk_installation as check
 from submodules import check_cardiocloud_data as rclone
-
+from submodules import read_samples as read
 
 ########################## Arguments ##########################
 #parser = argparse.ArgumentParser(
@@ -35,9 +35,15 @@ parser.add_argument("-v",
 
 parser.add_argument("-i",
         "--input_folder",
-        required=False,
+        required=True,
         type=str,
         help="Input CardioCloud folder that will be rcloned.")
+
+parser.add_argument("-s",
+        "--study_file",
+        required=True,
+        type=str,
+        help="Study file from ISA-TAB template that contains sample names")
 
 parser.add_argument("-o",
         "--uuid",
@@ -102,7 +108,11 @@ else:
 #print(response_rclone)
 #print(response_rclone_copy)
 
+########################## Read sample names from Study file  ##########################
+print("#Reading study file with sample names: ", args.study_file)
+sample_names = read.read_isa_study_file(args.study_file)
+if (sample_names == "NULL"):
+    print("*No samples to process. Exiting!")
+    sys.exit()
 
-
-
-
+print("Following samples will be processed in this run of SODAR upload:", sample_names)
