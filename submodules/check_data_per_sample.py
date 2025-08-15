@@ -12,6 +12,12 @@ import os, os.path
 from glob import glob
 import re
 
+'''
+# this function was later commented because fastq files can have any
+# naming convention if uploaded using ingest command instead of ingest-fastq
+# This is better option because then all data (raw/processed) can be uploaded
+# using `sodar ingest`
+
 def is_illumina_fastq(filename):
     # function to check if fastq filenames have a proper naming convention 
     # (if this is not followed, the links per sample in SODAR wont appear)
@@ -29,6 +35,7 @@ is_illumina_fastq("DB_30_miRNA.fastq.gz")
 is_illumina_fastq("MySample_S1_L001_R1_001.fastq.gz")
 is_illumina_fastq("MySample_S1_L001_R1_001.fq.gz")
 is_illumina_fastq("Sample_S1_L001_R3_001.fastq.gz")
+'''
 
 def find_data(samples, data_dir):
     # function that checks if the data for each sample is present or not
