@@ -39,12 +39,8 @@ def create_landing_zone(project_id, capture_output=True, shell=True):
             return(lz_uuid)
         else:
             print("Landing zone could not be created. Please check:\n", result.stderr.strip())
+            return(None)
     except Exception as e:
-        return {
-            "stdout": "",
-            "stderr": str(e),
-            "exit_code": -1
-        }
-        sys.exit()
+        return(None)
 
 create_landing_zone("aa9c3f41-756c-4206-8e02-e5c2f2c2dcc2")
