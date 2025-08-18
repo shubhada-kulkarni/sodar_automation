@@ -15,6 +15,7 @@ import sys
 from submodules import check_cubitk_installation as check
 from submodules import check_cardiocloud_data as rclone
 from submodules import read_samples as read
+from submodules import run_cubitk_commands as cubitk
 
 ########################## Arguments ##########################
 #parser = argparse.ArgumentParser(
@@ -116,3 +117,13 @@ if (sample_names == "NULL"):
     sys.exit()
 
 print("Following samples will be processed in this run of SODAR upload:", sample_names)
+
+########################## Creating landing zone on SODAR  ##########################
+lz_create_response = cubitk.create_landing_zone(args.uuid)
+if lz_create_response == None:
+    print("*Landing zone not created. Exiting!")
+    sys.exit()
+
+else:
+    # if landing zone is created, start uploading the data
+
