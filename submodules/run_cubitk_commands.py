@@ -53,7 +53,7 @@ def upload_data(uuid, data_folder, sample_name, capture_output=True, shell=True)
         a flag whether data is successfully uploaded or not
     """
     try:
-        command = 'cubi-tk --verbose --config config_testSODAR.toml sodar ingest --sodar-url "https://sodar-test.internal/" -r -y --collection=' + sample_name + ' --sodar-api-token "d1f108f3576bae3741e769c589189da7821d466dd77a3d0ec1593283f941b3b1" ' + data_folder  + ' ' + uuid
+        command = 'cubi-tk --verbose --config config_testSODAR.toml sodar ingest --sodar-url "https://sodar-test.internal/" -r -y --collection=' + sample_name + ' --sodar-api-token "d1f108f3576bae3741e769c589189da7821d466dd77a3d0ec1593283f941b3b1" ' + data_folder  + '/' + sample_name + "* " + uuid
         print(command)
         result = subprocess.run(
                 command,
@@ -72,7 +72,7 @@ def upload_data(uuid, data_folder, sample_name, capture_output=True, shell=True)
         print(False)
 
 
-def validate_and_move_data():
+def validate_and_move_data(uuid, capture_output=True, shell=True):
     """
     Validate and move the data to after uploading
     This will create a link per sample
@@ -81,6 +81,41 @@ def validate_and_move_data():
     Returns:
         a flag whether landing zone has been moved and validated or not
     """
+    try:
+        command = 'cubi-tk sodar landing-zone-validate --sodar-url "https://sodar-test.internal/" --sodar-api-token "d1f108f3576bae3741e769c589189da7821d466dd77a3d0ec1593283f941b3b1" ' + uuid
+        print(command)
+        result = subprocess.run(
+                command,
+                shell=shell,
+                capture_output=capture_output,
+                text=True)
+        if result.returncode == 0:
+            print("--------Successfully validated the landing zone---------")
+            print(result.stdout.strip())
+
+            # and now after successful validation, move this zone
+            try:
+                command2 = 'cubi-tk sodar landing-zone-move --sodar-url "https://sodar-test.internal/" --sodar-api-token "d1f108f3576bae3741e769c589189da7821d466dd77a3d0ec1593283f941b3b1" ' + uuid
+                result2 = subprocess.run(command2, shell=shell, capture_output=capture_output, text=True)
+                if result2.returncode == 0:
+                    print("--------Successfully moved the landing zone---------")
+                    print(result2.stdout.strip())
+                    return(True)
+                else:
+                    print("Landing zone not moved.", result2.stderr.strip())
+            
+            except Exception as e2:
+                print(e2)
+
+        else:
+            print("Landing zone not validated.", result.stderr.strip())
+            return(False)
+
+    except Exception as e:
+        print(e)
+        print(False)
+
 
 uuid = create_landing_zone("aa9c3f41-756c-4206-8e02-e5c2f2c2dcc2")
-upload_data(uuid, "temp_testing", "DB_32")
+upload_data(uuid, "temp_testing", "DB_32_miRNA")
+validate_and_move_data(uuid) 
