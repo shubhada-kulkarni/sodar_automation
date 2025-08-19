@@ -43,4 +43,44 @@ def create_landing_zone(project_id, capture_output=True, shell=True):
     except Exception as e:
         return(None)
 
-create_landing_zone("aa9c3f41-756c-4206-8e02-e5c2f2c2dcc2")
+
+def upload_data(uuid, data_folder, sample_name, capture_output=True, shell=True):
+    """
+    Uploads the data to SODAR landing zone
+    Args:
+        landing zone uuid (str): The UUID created by `create_landing_zone` function
+    Returns:
+        a flag whether data is successfully uploaded or not
+    """
+    try:
+        command = 'cubi-tk --verbose --config config_testSODAR.toml sodar ingest --sodar-url "https://sodar-test.internal/" -r -y --collection=' + sample_name + ' --sodar-api-token "d1f108f3576bae3741e769c589189da7821d466dd77a3d0ec1593283f941b3b1" ' + data_folder  + ' ' + uuid
+        print(command)
+        result = subprocess.run(
+                command,
+                shell=shell,
+                capture_output=capture_output,
+                text=True)
+        if result.returncode == 0:
+            print("--------Successfully uploaded the data to SODAR---------")
+            print(result.stdout.strip())
+            return(True)
+        else:
+            print("Data not uploaded to SODAR.", result.stderr.strip())
+            return(False)
+    except Exception as e:
+        print(e)
+        print(False)
+
+
+def validate_and_move_data():
+    """
+    Validate and move the data to after uploading
+    This will create a link per sample
+    Args:
+        Landing zone uuid (str): The UUID created by `create_landing_zone` function 
+    Returns:
+        a flag whether landing zone has been moved and validated or not
+    """
+
+uuid = create_landing_zone("aa9c3f41-756c-4206-8e02-e5c2f2c2dcc2")
+upload_data(uuid, "temp_testing", "DB_32")
